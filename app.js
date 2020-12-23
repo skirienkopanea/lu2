@@ -29,7 +29,7 @@ app.get("/play", indexRouter);
 
 /******************************LAUNCH THE SERVER******************************/
 var server = http.createServer(app);
-server.listen(process.env.PORT || port)
+server.listen(process.env.PORT || port);
 /*****************************************************************************/
 
 //MANTAINANCE: regularly clean up from memory the ended games (Hoisting will execute the web sockets before this function)
