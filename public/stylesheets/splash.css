@@ -1,0 +1,63 @@
+@import "style.css";
+
+
+body {
+    text-align: center;
+    white-space: pre;
+    font-size: x-large;
+    line-height: 0.5;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+/* cascading, replaces previous font-size*/
+button {
+    font-size: xx-large;
+}
+
+/* :active */
+#joingame:active {
+    background-color: var(--medium);
+}
+/* :hover, ::after */
+#rules:hover::after {
+    content: "\APlayer 1 (red) always starts\A 30 seconds to make a move: click 'ROLL DICE', then on token, then on cell\A Bring all tokens to your colored star cell to win\ALanding on an a cell with a token sends it back to its base";
+    font-size:medium;
+}
+/* ::before*/
+main::before {
+    content: "\ALudo for 2\A";
+    font-size:xx-large;
+}
+
+/* display:grid and position:absolute*/
+.grid-container {
+
+    display: grid;
+    grid-template-rows: repeat(1, 100px);
+    grid-template-columns: repeat(3, 200px);
+    grid-gap: 10px;
+
+    position: absolute;
+    left: 0;
+    bottom: 15%;
+    width: 100%;
+    justify-content: center;
+}
+
+.grid-container div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* animation */
+#joingame{
+    animation: blink 4s linear infinite;
+}
+
+@keyframes blink {
+    50% {
+      background-color: var(--medium); /*does half the blink then resets*/
+    }
+  }

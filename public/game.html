@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <link rel="icon" type="image/png" href="images/favicon.png">
+   <title>Lu2 - Ludo for 2</title>
+   <link rel="stylesheet" href="stylesheets/game.css">
+</head>
+
+<body>
+   <audio class="diceAudio">
+      <source src="data/dice.wav" type="audio/ogg">
+   </audio>
+   <audio class="bell">
+      <source src="data/bell.wav" type="audio/ogg">
+   </audio>
+   <audio class="win">
+      <source src="data/win.mp3" type="audio/mpeg">
+   </audio>
+   <audio class="abort">
+      <source src="data/abort.mp3" type="audio/mpeg">
+   </audio>
+   <table>
+      <tr>
+         <td>
+
+         </td>
+      </tr>
+   </table>
+   <table class="container">
+      <tr>
+         <td class="chat">
+            <p id="chatbox"></p>
+            <textarea id="textarea" rows=1 placeholder="Press enter to send chat message"
+               onkeydown="chatSeverConsole(this)"></textarea>
+         </td>
+      </tr>
+      <tr>
+         <td class="container">
+            <table class="container">
+               <tr>
+                  <td class="left">
+                     <div class="grid-left">
+                        <div>
+                           <img class="dicePic">
+                           <form action="/?=not_an_easter_egg" method="get">
+                              <button class="rollDiceButton" type="button">ROLL DICE</button>
+                           </form>
+                        </div>
+                        <div>
+                           <p class="timer" style="text-align: center;"></br></br></p>
+                        </div>
+                        <div>
+                           <table id="p1box">
+                              <tr>
+                                 <td id="s10" class="base"><input id="c10" class="coinp1" type="image"></td>
+                                 <td id="s11" class="base"><input id="c11" class="coinp1" type="image"></td>
+                              </tr>
+                              <tr>
+                                 <td id="s12" class="base"><input id="c12" class="coinp1" type="image"></td>
+                                 <td id="s13" class="base"><input id="c13" class="coinp1" type="image"></td>
+                              </tr>
+                           </table>
+
+                        </div>
+                  </td>
+                  <td class="center">
+                     <div class="grid-board">
+                        <div id="6" class="board"></div>
+                        <div id="7" class="board"></div>
+                        <div id="8" class="board"></div>
+                        <div id="5" class="board"></div>
+                        <div id="21" class="board"></div>
+                        <div id="9" class="board"></div>
+                        <div id="4" class="board"></div>
+                        <div id="22" class="board"></div>
+                        <div id="10" class="board"></div>
+                        <div id="3" class="board"></div>
+                        <div id="23" class="board"></div>
+                        <div id="11" class="board"></div>
+                        <div id="2" class="board"></div>
+                        <div id="19" class="board"></div>
+                        <div id="12" class="board"></div>
+                        <div id="1" class="board"></div>
+                        <div id="18" class="board"></div>
+                        <div id="13" class="board"></div>
+                        <div id="0" class="board"></div>
+                        <div id="17" class="board"></div>
+                        <div id="14" class="board"></div>
+                        <div id="20" class="board"></div>
+                        <div id="16" class="board"></div>
+                        <div id="15" class="board"></div>
+                     </div>
+                  </td>
+                  <td class="right">
+                     <div class="grid-right">
+                        <div>
+                           <table id="p2box">
+                              <tr>
+                                 <td id="s24" class="base"><input id="c24" class="coinp2" type="image"></td>
+                                 <td id="s25" class="base"><input id="c25" class="coinp2" type="image"></td>
+                              </tr>
+                              <tr>
+                                 <td id="s26" class="base"><input id="c26" class="coinp2" type="image"></td>
+                                 <td id="s27" class="base"><input id="c27" class="coinp2" type="image"></td>
+                              </tr>
+                           </table>
+                        </div>
+                        <div>
+                           <p class="topText"></p>
+                        </div>
+                        <div>
+                           <form action="/splash.html" method="get">
+                              <button class="abortButton" type="button">Abort game</button>
+                           </form>
+                        </div>
+                  </td>
+               </tr>
+            </table>
+         </td>
+      </tr>
+      <tr>
+         <td>
+            <div class="grid-score">
+               <div id="SCORE_P1">0</div>
+               <div>Game time&nbsp;<span class="minutes">00</span>:<span class="seconds">00</span></div>
+               <div id="SCORE_P2">0</div>
+         </td>
+      </tr>
+      <tr>
+         <td class="rules">
+            <p>Rules:</p>
+            <ul>
+               <li>Player 1 (red) always starts.</li>
+               <li>Players must roll the dice by clicking on 'ROLL DICE' to evaluate the cell
+                  moves.</li>
+               <li>Clicking on your tokens will highlight the possible cell move for that token based on the dice
+                  number</li>
+               <li>You may click on another token to display its assigned possible cell move</li>
+               <li>The last token selected is displayed darker. Clicking on the highlighted ('yellow background')
+                  cell will execute the move</li>
+               <li>Any dice number is valid to get a token outside the base, and move it the number of cells
+                  determined by the dice. Starting at the black arrowed with same background color as the player's
+                  base cell.</li>
+               <li>The goal of the game is to bring all tokens to the star theme cell (aka home cell) of the
+                  player's color.
+                  The first player to do so wins the game.
+               </li>
+               <li>Pieces move around the external cells of the board clockwise and must make a turn
+                  to the central home column of the player's color. Tbe turn is determined by the white cell with
+                  an arrow of
+                  your color. That cell is also part of the players path.
+               </li>
+               <li>When a token lands on an occupied cell the old token is sent back to it's base, regardless of
+                  the team of the coin (so you will send your own tokens back as well as the opponents').
+               </li>
+               <li>Tokens don't block the path in this Ludo variant. Tokens may jump over a token placed before
+                  the landing cell
+               </li>
+               <li>
+                  The home (star) cell has special rules. Tokens landing on the home cell won't send back the
+                  current tokens occupying the home cell. If you want to move a token to the home cell make sure to
+                  not
+                  click
+                  on another coin in the home. Therefore instead of clicking in the center of the home cell just
+                  click around
+                  the edges of the home cell (anywhere where there's room left to click the home cell without
+                  clicking another coin)
+               </li>
+               <li>
+                  If the dice number is bigger or equal than the number of cells required to reach the home cell,
+                  then the possible move for such token is the home cell.
+               </li>
+               <li>
+                  A player may make a move within 30 seconds, if no move is made in 30 seconds the turn is given
+                  to the opposite player.
+               </li>
+               <li>
+                  The game may also finish if no winer is determiend after 1 hour. That will make it a draw.
+               </li>
+               <li>
+                  The game may also finished by abortion if a player abandons the game site or if it clicks on
+                  abort game. There is now
+                  winner in that case, just bad sportmanship.
+               </li>
+            </ul>
+         </td>
+      </tr>
+   </table>
+   <a id="share" href="mailto:?subject=Let's play Ludo for 2!&body=https://www.youtube.com/watch?v=dQw4w9WgXcQ">E-mail this game to a friend</a>
+   <!--The order of the js import files is important most objects must be declare before initalising the game-->
+   <script src="javascripts/screen-res.js"></script>
+   <script src="javascripts/config.js"></script>
+   <script src="javascripts/toptext.js"></script>
+   <script src="javascripts/gameclock.js"></script>
+   <script src="javascripts/dice.js"></script>
+   <script src="javascripts/board.js"></script>
+   <script src="javascripts/coin.js"></script>
+   <script src="javascripts/cell.js"></script>
+   <script src="javascripts/misc.js"></script>
+   <script src="javascripts/localgame.js"></script>
+   <script src="javascripts/client-app.js"></script>
+</body>
+</html>

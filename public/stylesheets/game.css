@@ -1,0 +1,127 @@
+@import "style.css";
+
+/* :active */
+.rollDiceButton:active, .abortButton:active {
+  background-color: var(--medium);
+}
+
+/* :hover, ::after */
+.abortButton:enabled:hover::after {
+  content: "\A Are you sure?";
+  font-size:medium;
+}
+
+/* ::before*/
+#SCORE_P1::before {
+  content: "P1 Score:\00a0";
+}
+#SCORE_P2::before {
+  content: "P2 Score:\00a0";
+}
+
+/* animation */
+.topText {
+  animation: blink 3s linear infinite; /* constant rate, never stops*/
+  text-align: center;
+  font-size: x-large
+}
+@keyframes blink { /*if it was just 100% opacity 0 then it would slowly decrease to 0 and once it's done it would jump back to full opacity. The way below is symetric (hard to soft, soft to hard... instead of hard to soft, hard to soft...)*/
+  50% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+table {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+p.timer{
+  font-size:large;
+}
+
+/* display:grid*/
+.grid-board {
+  display: grid;
+  grid-template-rows: repeat(8, 60px);
+  grid-template-columns: repeat(3, 60px);
+  grid-gap: 1px;
+}
+.grid-board div, .grid-score div, .grid-game div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.grid-score, .grid-game {
+  font-size: large;
+  display: grid;
+  grid-template-rows: repeat(1, 20px);
+  grid-template-columns: repeat(3, 160px);
+  grid-column-gap: 18px;
+  justify-content: center;
+}
+.grid-left,.grid-right {
+  display: grid;
+  grid-template-rows: repeat(3, 160px);
+  grid-template-columns: repeat(1, 140px);
+  grid-column-gap: 20px;
+  width: 100%;
+  overflow-y: hidden;
+  align-items: center;
+}
+
+/*position:absolute*/
+#share{
+  position:absolute;
+  right:0;
+  top:0;
+}
+
+/*entire base*/
+#p1box{
+  background-color: #f2bab8;
+  border: 4px solid black;
+  border-radius: 25px;
+}
+
+#p2box{
+  background-color: #acd5fe;
+  border: 4px solid black;
+  border-radius: 25px;
+}
+/*single token spawn*/
+td.base {
+  height: 60px;
+  width: 60px;
+}
+
+/*Chat*/
+#chatbox {
+  font-size:small;
+  border: 1px solid black;
+  padding-left: 10px;
+  text-align: left;
+  height: 100px;
+  overflow-y: auto;
+  line-height: 0.5;
+  max-width: 98%;
+}
+
+#textarea {
+  width: 100%;
+  max-width: 99%;
+}
+
+td.chat, td.rules {
+  border: 1px solid black;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 5px;
+  padding-right: 0px;
+  text-align: left;
+}

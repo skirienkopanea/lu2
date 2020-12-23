@@ -1,0 +1,56 @@
+:root {
+  --dark: rgb(37, 40, 58);
+  --light:rgb(220, 224, 241);
+  --medium: rgb(119, 134, 199);
+  --disabled: gray;
+  --borderC: rgb(0, 0, 0);
+  --borderT: 3px;
+
+}
+* {
+  font-family: monospace;
+}
+
+button {
+  white-space: pre;
+  font-size:large;
+  border: var(--borderT) solid transparent;
+  border-radius: 10px;
+  font-size:large;
+  background-color: var(--light);
+  color: var(--dark);
+}
+
+button:enabled:hover {
+  border: var(--borderT) dashed var(--borderC);
+}
+
+button:disabled {
+  background-color: darkgray;
+  color: var(--disabled);
+}
+
+#warning{
+  display:none;
+}
+
+/* media queries to alert players for low screen resolution*/
+@media screen and (max-width: 600px), (max-height: 700px)  {
+  #warning{
+    /*position absolute*/   
+    position: absolute;
+    left: 0;
+    top: 40%;
+    font-size: xx-large;
+    visibility: visible;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+  }
+  /* We won't allow them play */ /*If they enter the url manually they get redirected via a js*/
+  button{
+    display:none;
+  }
+}
