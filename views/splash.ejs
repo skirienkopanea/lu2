@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Lu2 - Ludo for 2</title>
+      <link rel="stylesheet" href="stylesheets/splash.css"/>
+      <link rel="icon" type="image/png" href="images/favicon.png">
+   </head>
+   <div id="warning">SCREEN TOO SMALL TO PLAY</br>MIN: 600x700</div>
+   <body>
+<img src="images/logo.jpg">
+         <main>
+            <form action="game.html" method="get">
+               <p><button id="joingame" type="submit">Play</button></p>
+            <p><button id="rules" type="button">Rules</button></p>
+            </form>
+         <div class="grid-container">
+            <div><%= gamesInitialized-1%><%if (gamesInitialized-1 != 1) {%> games <%} else {%> game <%} %>started</div>
+            <div><%= onlinePlayersCount%> online<%if (onlinePlayersCount != 1) {%> players<%} else {%> player<%} %></div>
+            <div><%= gamesCompleted%><%if (gamesCompleted != 1) {%> games <%} else {%> game <%} %>completed</div>
+         </main>
+   </body>
+</html>
