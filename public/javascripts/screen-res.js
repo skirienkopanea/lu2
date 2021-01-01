@@ -2,10 +2,10 @@ let width = window.innerWidth || document.documentElement.clientWidth || documen
 let height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
 if (width < 600) {
-    alert("Screen width too small");
-    window.location.replace("./");
+    alert("Screen width too small. Play experience might be suboptimal.");
+    //window.location.replace("./");
 }
 if (height < 700) {
-    alert("Screen height too small");
-    window.location.replace("./");
+    alert("Screen height too small. Play experience might be suboptimal.");
+    //window.location.replace("./");
 }

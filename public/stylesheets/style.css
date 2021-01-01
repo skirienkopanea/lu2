@@ -49,8 +49,8 @@ button:disabled {
     align-items: center;
     line-height: 1;
   }
-  /* We won't allow them play */ /*If they enter the url manually they get redirected via a js*/
-  button{
+  /* We won't display the chat and rules in small screens as they take too much space*/
+  .chat,.rules{
     display:none;
   }
 }
