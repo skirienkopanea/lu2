@@ -11,7 +11,8 @@
 That is a feature managed by herokuapp themselves.</li>
 <li>Local implementations do not have that feature.</li>
 </ul>
-To implement this game on your local machine:</br>
+To implement this game on your local machine:
+
 ```console
 git clone https://github.com/chauff/balloons-game.git
 cd balloons-game
