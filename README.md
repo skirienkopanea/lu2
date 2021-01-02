@@ -1,7 +1,8 @@
-# lu2
+# Ludo for 2 (lu2)
 <ul>
 <li>2 player online game assignment for TU Delft course CSE1500 <a href="https://chauff.github.io/Web-Teaching/">Web Technology part</a> taught by <a href="https://github.com/chauff">Claudia Hauff</a></li>
 <li>The tech stack comprises plain Javascript on the client side and Node.js on the server side (and html+css).</li>
+<li>The client and server communicate via websockets</li>
 <li>The home page stats are not stored in a database but in the temporary memory of the server.</li>
 <li>Stats are refreshed with ejs templates.</li>
 <li>In terms of users joining games, the server assigns odd players to a new game, as player 1.</li>
