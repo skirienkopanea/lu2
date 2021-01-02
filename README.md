@@ -12,6 +12,7 @@
 That is a feature managed by herokuapp themselves. (A workaround could be to automatize an empty message from the client to the server every 30 seconds)</li>
 <li>Local implementations do not have that feature.</li>
 <li>I used inkscape and css for the graphics. For the sounds I downloaded a few free samples from pachd.com (dice) and freesound.org (the rest).</li>
+<li>There are additional unused graphics available as well as the original inkscape files. Feel free to use them, there's no copyrights from my resources.</li>
 </ul>
 You can implement this game on your local machine. Install Node.js https://nodejs.org/en/ and git https://git-scm.com/. Then execute the following on the terminal:
 
