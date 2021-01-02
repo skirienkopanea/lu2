@@ -8,7 +8,7 @@
 <li>Even players are assigned to the existing game without a 2nd player, as player 2.</li>
 <li>You can check a live implementation at https://parchispara2.herokuapp.com/</li>
 <li>If the player doesn't take any action the herokuapp environment will disconnect the player from the server after roughly 1 minute of inactivity.
-That is a feature managed by herokuapp themselves.</li>
+That is a feature managed by herokuapp themselves. (A workaround could be to automatize an empty message from the client to the server every 30 seconds)</li>
 <li>Local implementations do not have that feature.</li>
 <li>I used inkscape and css for the graphics. For the sounds I downloaded a few free samples from pachd.com (dice) and freesound.org (the rest).</li>
 </ul>
