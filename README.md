@@ -1,6 +1,6 @@
 # lu2
 <ul>
-<li>2 player online game assignment for TU Delft course CSE1500</li>
+<li>2 player online game assignment for TU Delft course CSE1500 <a href="https://chauff.github.io/Web-Teaching/">Web Technology part</a> taught by <a href="https://github.com/chauff">Claudia Hauff</a></li>
 <li>The tech stack comprises plain Javascript on the client side and Node.js on the server side (and html+css).</li>
 <li>The home page stats are not stored in a database but in the temporary memory of the server.</li>
 <li>Stats are refreshed with ejs templates.</li>
@@ -11,7 +11,7 @@
 That is a feature managed by herokuapp themselves.</li>
 <li>Local implementations do not have that feature.</li>
 </ul>
-To implement this game on your local machine:
+To implement this game on your local machine make sure that you have Node.js https://nodejs.org/en/ installed as well as git https://git-scm.com/. Then:
 
 ```console
 git clone https://github.com/skirienkopanea/lu2
