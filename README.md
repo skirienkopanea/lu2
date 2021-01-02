@@ -14,8 +14,7 @@ That is a feature managed by herokuapp themselves.</li>
 To implement this game on your local machine:
 
 ```console
-git clone https://github.com/chauff/balloons-game.git
-cd balloons-game
-npm install
+git clone https://github.com/skirienkopanea/lu2
+cd lu2
 npm start
 ```
