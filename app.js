@@ -8,24 +8,37 @@ var websocket = require("ws");
 //Port config, create Express application, set root of application
 var port = process.argv[2];
 var app = express();
+
+//a middleware logger component
+function logger(request, response, next) {
+    console.log("%s\t%s\t%s", new Date(), request.method, request.url);
+    next(); //control shifts to next middleware function (If we dont use this the user will be left hanging without a response)
+}
+
+app.use(logger); //register middleware component
+//The reason we use this other middleware component after the logger is because otherwise the server will respond to the client
+//with the request resource i.e. /favicon.ico and once the request is send that closes the cycle the request-response cycle
+//so the following middelware components don't get to receive anything
 app.use(express.static(__dirname + "/public")); //reference point to make flexible urls (all html files are in 'public' folder)
+
 
 //HANDLING GET REQUESTS
 //not modular example, for the splash.ejs view statistics! (can be moved to index.js tho)
 app.set("view engine", "ejs"); //
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     //example of data to render; here gameStatus is an object holding this information
-    res.render('splash.ejs', { gamesInitialized: gameStatus.gamesInitialized,
+    res.render('splash.ejs', {
+        gamesInitialized: gameStatus.gamesInitialized,
         gamesAborted: gameStatus.gamesAborted,
         gamesCompleted: gameStatus.gamesCompleted,
         onlinePlayersCount: gameStatus.onlinePlayersCount
     });
 })
+
 //modular example
 var indexRouter = require("./routes/index.js");
 app.get("/splash", indexRouter);
 app.get("/play", indexRouter);
-
 
 /******************************LAUNCH THE SERVER******************************/
 var server = http.createServer(app);
