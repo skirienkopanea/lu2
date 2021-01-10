@@ -14,13 +14,13 @@ function game(id) {
     //returns which player has been added to the game
     //it does return an error when no player has been added to the game
     this.addPlayer = function (socket) {
-        if (this.player1 != null && this.player2 != null) {
+        if (this.player1 != null && this.player2 != null && this.gameOver == false) {
             return new Error("GAME FULL"); //should never happen if server assigns players properly
         }
-        if (this.player1 == null) {
+        if (this.player1 == null && this.gameOver == false) {
             this.player1 = socket;
             return 1;
-        } else {
+        } else if (this.player2 == null && this.gameOver == false){
             this.player2 = socket;
             return 2;
         }

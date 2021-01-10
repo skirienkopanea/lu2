@@ -11,7 +11,9 @@ var app = express();
 
 //a middleware logger component
 function logger(request, response, next) {
-    console.log("%s\t%s\t%s", new Date(), request.method, request.url);
+    console.log("%s\t%s\t%s\t%s\t", new Date(), request.ip.substr(7), request.method, request.url);
+    //substring to remove ipv6 format
+    //for Heroku use request.headers['x-forwarded-for'] 
     next(); //control shifts to next middleware function (If we dont use this the user will be left hanging without a response)
 }
 
@@ -67,31 +69,33 @@ const wss = new websocket.Server({ server }); //initialise socket object
 
 var gameStatus = require("./statTracker");
 var Game = require("./game");
-var currentGame = new Game(gameStatus.gamesInitialized++);
+
+//we start with 0 intialised games and set a currentGame variable object to be gameOver = true for the logic below.
+//this is done like this so that only when there's a connection a game is initalised.
+var currentGame = {
+    gameOver: true,
+    player2: null
+ };
 
 //BEHAVIOUR DURING THE ENTIRE SOCKET CONNECTION
 wss.on("connection", function connection(socket) {
     gameStatus.onlinePlayersCount++;
 
-    // two-player game: every two players are added to the same game
+    // two-player game: every two players are added to the same (non-started) game
     socket.id = connectionID++;
-    let playerType = currentGame.addPlayer(socket);
+    if (currentGame.gameOver == true || currentGame.player2 != null ){ //if it is game over (or if it doesnt exist yet), or full, then a new game object is created
+        currentGame = new Game(gameStatus.gamesInitialized++);
+    }
+    let playerType = currentGame.addPlayer(socket); //adds player to a non-finished game with a player slot available
 
     //array of games, the indexes are the player's ids (i.e. websockets[0] = websockets[1] = game 0)
     //This will support multiple live games as we can now link a received socket message
     //to their respective game, and broadcast responses to that specific game only
     websockets[socket.id] = currentGame; //beware immeadeately after p2 joins this reference is overwritten by a new game object so after that point it no longer presents the "current" game, use the websockets array which contain the actual games per socket
 
-    console.log("game " + currentGame.id + " P" + playerType + " assigned to: socket number " + socket.id); //for server debugging
+    console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + currentGame.id, "\tPLY" + playerType, "socket ", socket.id); //for server debugging
 
-    // once we have two players a new game object is created
     if (currentGame.player2 != null) {
-        currentGame = new Game(gameStatus.gamesInitialized++);
-        //Therefore the first 2 players are sent to game 0
-        //The next 2 will be sent to game 1, and so forth
-        //By replacing the currentGame reference to a new entity
-        //We make sure to not send all the players to the same game
-
         //CLIENT 2 TRIGGERS GAME START
         if (playerType == 2) {
             let messageToP1 = {
@@ -105,7 +109,7 @@ wss.on("connection", function connection(socket) {
             //which contains the game objects, and get player1 socket from there
             websockets[socket.id].player1.send(JSON.stringify(messageToP1));
             websockets[socket.id].player2.send(JSON.stringify(messageToP2));
-            console.log("game " + websockets[socket.id].id + " has started")
+            console.log("%s\t%s\t%s\t", new Date(), "game " + websockets[socket.id].id, "\tSTART"); //for server debugging
         }
     }
 
@@ -136,7 +140,8 @@ wss.on("connection", function connection(socket) {
                 gameObject.player2.send(JSON.stringify(sendObject));
             }
 
-            console.log("game " + gameObject.id + " chat - " + JSON.parse(JSON.stringify(sendObject))["data"]); //for server debugging
+            console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tCHAT",JSON.parse(JSON.stringify(sendObject))["data"] ); //for server debugging
+            
         }
 
         //CLIENT SENDS BOARD/DICE UPDATE
@@ -144,10 +149,14 @@ wss.on("connection", function connection(socket) {
         if (messageObject["type"] == "UPDATE" || messageObject["type"] == "DICE") {
             if (isPlayer1) {
                 gameObject.player2.send(message);
-                console.log(message); //for server debugging
             } else {
                 gameObject.player1.send(message);
-                console.log(message); //for server debugging
+            }
+            let game = JSON.parse(JSON.stringify(messageObject))["data"];
+            if  (messageObject["type"] == "UPDATE"){
+                console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type,"score",game.scoreP1,game.scoreP2); //for server debugging
+            } else {
+                console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type,"number",JSON.parse(JSON.stringify(messageObject))["data"]); //for server debugging
             }
         }
 
@@ -161,8 +170,6 @@ wss.on("connection", function connection(socket) {
                 //we let the clients use the chat, we're not gonna kick them
             } else { //it is aborted
                 gameStatus.gamesAborted++;
-                console.log("game " + gameObject.id + " aborted")
-
                 //close remaining open connections
                 try {
                     gameObject.player1.send(message); //echo abort message to notify other player
@@ -179,26 +186,25 @@ wss.on("connection", function connection(socket) {
                 }
             }
 
-            console.log(message); //for server debugging
+            console.log("%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type,JSON.parse(JSON.stringify(messageObject))["data"]); //for server debugging
         }
     });
 
     //BEHAVIOUR AT CONNECTION CLOSURE
     socket.on("close", function (code) {
+        let gameObject = websockets[socket.id];
         gameStatus.onlinePlayersCount--;
 
         // code 1001 means closing initiated by the client;
-        console.log("socket " + socket.id + " disconnected ...");
+        console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tDSCNCT", "socket ", socket.id); //for server debugging
 
         if (code == "1001") {
 
             // if possible, abort the game; if not, the game is already completed
-            let gameObject = websockets[socket.id];
-
-            if (gameObject.gameOver == false) { //indeed unfinished game with 1001 = abortion
+            if (gameObject.gameOver == false) { //only register as aborted from the first quitter
                 gameStatus.gamesAborted++;
-                gameObject.gameOver = true //now it will be deleted by the setInterval mantienance
-                console.log("game " + gameObject.id + " aborted")
+                console.log("%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tGAMEOVER",0); //for server debugging
+
 
                 //close remaining open connections
                 let message =
@@ -219,6 +225,8 @@ wss.on("connection", function connection(socket) {
                     gameObject.player2 = null;
                 } catch (e) {
                 }
+
+                gameObject.gameOver = true; //now nobody will be able to join an aborted game with half players
             }
         }
     });

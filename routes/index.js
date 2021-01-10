@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page */
 router.get("/splash", function(req, res) {
-  res.sendFile("splash.html", { root: "./public" });
+  res.redirect('/');
 });
 
 /* Pressing the 'PLAY' button, returns this page */
