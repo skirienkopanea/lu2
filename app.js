@@ -22,25 +22,30 @@ function logger(request, response, next) {
 function authorization(req, res, next) {
     var auth = req.headers.authorization;
     if (!auth) {
-        res.send("Unauthorised acces.");
-        //then send popup message that prompts for user and password
-        //then keep it in a session
+        var query = url.parse(req.url, true).query;
+        var user = query["user"] != undefined ? query["user"] : "";
+        var password = query["password"] != undefined ? query["password"] : "";
     } else {
         var parts = auth.split(' ');
         var buf = new Buffer.from(parts[1], 'base64');
         var login = buf.toString().split(':');
         var user = login[0];
         var password = login[1];
-
-        //hardcoded for demonstration purposes
-        if (user === "user" && password === "password") {
-            next();
-        }
-        else {
-            res.send("Wrong username or password.");
-        }
     }
+
+    //hardcoded for demonstration purposes
+    if (user === "user" && password === "password") {
+        console.log("%s\t%s\t%s\t%s\t",new Date(),"LOGIN",user, req.url);
+        //make a session and keep those credentials somewhere
+        next();
+    }
+    else {
+        res.send("Wrong username or password.");
+    }
+
 }
+
+app.get('/wish*',authorization);
 
 const wishlist = [];
 let w1 = { type: "video game", name: "Hogwarts Legacy", priority: "high" };
@@ -77,7 +82,6 @@ app.get("/addWish", function (req, res) {
         res.end("Wish added successfully");
     }
 });
-app.get('/wish*',authorization);
 
 app.use(logger); //register middleware component
 //The reason we use this other middleware component after the logger is because otherwise the server will respond to the client
