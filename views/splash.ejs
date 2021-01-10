@@ -14,6 +14,9 @@
             <p><button id="rules" type="button">Rules</button></p>
             </form>
          <div class="grid-container">
+            <!--  %= output the value into the template in HTML escaped form (i.e. for variable output) -->
+            <!--  %- output the value into the template in unescaped form (can lead to injection attacks) -->
+            <!--  %  scriptlet tag for control-flow purposes (in javascript) -->
             <div><%= gamesInitialized%><%if (gamesInitialized != 1) {%> games <%} else {%> game <%} %>started</div>
             <div><%= onlinePlayersCount%> online<%if (onlinePlayersCount != 1) {%> players<%} else {%> player<%} %></div>
             <div><%= gamesCompleted%><%if (gamesCompleted != 1) {%> games <%} else {%> game <%} %>completed</div>
