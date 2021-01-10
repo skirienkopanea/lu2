@@ -3,7 +3,7 @@ let height = window.innerHeight || document.documentElement.clientHeight || docu
 
 if (width < 600) {
     alert("Screen width too small. Play experience might be suboptimal.");
-    //window.location.replace("./");
+    //window.location.replace("./"); this would redirect to homepage
 }
 if (height < 700) {
     alert("Screen height too small. Play experience might be suboptimal.");
