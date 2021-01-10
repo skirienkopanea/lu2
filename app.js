@@ -3,6 +3,7 @@
 //Import modules
 var express = require("express");
 var http = require("http");
+var url = require("url");
 var websocket = require("ws");
 
 //Port config, create Express application, set root of application
@@ -16,6 +17,67 @@ function logger(request, response, next) {
     //for Heroku use request.headers['x-forwarded-for'] 
     next(); //control shifts to next middleware function (If we dont use this the user will be left hanging without a response)
 }
+
+//authorization component
+function authorization(req, res, next) {
+    var auth = req.headers.authorization;
+    if (!auth) {
+        res.send("Unauthorised acces.");
+        //then send popup message that prompts for user and password
+        //then keep it in a session
+    } else {
+        var parts = auth.split(' ');
+        var buf = new Buffer.from(parts[1], 'base64');
+        var login = buf.toString().split(':');
+        var user = login[0];
+        var password = login[1];
+
+        //hardcoded for demonstration purposes
+        if (user === "user" && password === "password") {
+            next();
+        }
+        else {
+            res.send("Wrong username or password.");
+        }
+    }
+}
+
+const wishlist = [];
+let w1 = { type: "video game", name: "Hogwarts Legacy", priority: "high" };
+let w2 = { type: "board game", name: "Sushi Go", priority: "medium" };
+wishlist.push(w1);
+wishlist.push(w2);
+
+//clients requests her wishlist
+app.get("/wishlist", function (req, res) {
+    console.log("wishlist requested!");
+    res.json(wishlist);
+});
+
+//add wishlist item to the server
+app.get("/addWish", function (req, res) {
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    console.log(query);
+
+    if (query["name"] == undefined) {
+        res.end("Error: the name of the wish has to be specified.");
+    }
+    else {
+        let w = { type: "", name: query["name"], priority: "" };
+
+        if (query["type"] !== undefined)
+            w.type = query["type"];
+
+        if (query["priority"] !== undefined)
+            w.priority = query["priority"];
+
+        wishlist.push(w);
+        console.log("Added " + w.name);
+        res.end("Wish added successfully");
+    }
+});
+app.get('/wish*',authorization);
 
 app.use(logger); //register middleware component
 //The reason we use this other middleware component after the logger is because otherwise the server will respond to the client
@@ -75,7 +137,7 @@ var Game = require("./game");
 var currentGame = {
     gameOver: true,
     player2: null
- };
+};
 
 //BEHAVIOUR DURING THE ENTIRE SOCKET CONNECTION
 wss.on("connection", function connection(socket) {
@@ -83,7 +145,7 @@ wss.on("connection", function connection(socket) {
 
     // two-player game: every two players are added to the same (non-started) game
     socket.id = connectionID++;
-    if (currentGame.gameOver == true || currentGame.player2 != null ){ //if it is game over (or if it doesnt exist yet), or full, then a new game object is created
+    if (currentGame.gameOver == true || currentGame.player2 != null) { //if it is game over (or if it doesnt exist yet), or full, then a new game object is created
         currentGame = new Game(gameStatus.gamesInitialized++);
     }
     let playerType = currentGame.addPlayer(socket); //adds player to a non-finished game with a player slot available
@@ -140,8 +202,8 @@ wss.on("connection", function connection(socket) {
                 gameObject.player2.send(JSON.stringify(sendObject));
             }
 
-            console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tCHAT",JSON.parse(JSON.stringify(sendObject))["data"] ); //for server debugging
-            
+            console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tCHAT", JSON.parse(JSON.stringify(sendObject))["data"]); //for server debugging
+
         }
 
         //CLIENT SENDS BOARD/DICE UPDATE
@@ -153,10 +215,10 @@ wss.on("connection", function connection(socket) {
                 gameObject.player1.send(message);
             }
             let game = JSON.parse(JSON.stringify(messageObject))["data"];
-            if  (messageObject["type"] == "UPDATE"){
-                console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type,"score",game.scoreP1,game.scoreP2); //for server debugging
+            if (messageObject["type"] == "UPDATE") {
+                console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type, "score", game.scoreP1, game.scoreP2); //for server debugging
             } else {
-                console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type,"number",JSON.parse(JSON.stringify(messageObject))["data"]); //for server debugging
+                console.log("%s\t%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type, "number", JSON.parse(JSON.stringify(messageObject))["data"]); //for server debugging
             }
         }
 
@@ -186,7 +248,7 @@ wss.on("connection", function connection(socket) {
                 }
             }
 
-            console.log("%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type,JSON.parse(JSON.stringify(messageObject))["data"]); //for server debugging
+            console.log("%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\t" + messageObject.type, JSON.parse(JSON.stringify(messageObject))["data"]); //for server debugging
         }
     });
 
@@ -203,7 +265,7 @@ wss.on("connection", function connection(socket) {
             // if possible, abort the game; if not, the game is already completed
             if (gameObject.gameOver == false) { //only register as aborted from the first quitter
                 gameStatus.gamesAborted++;
-                console.log("%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tGAMEOVER",0); //for server debugging
+                console.log("%s\t%s\t%s\t", new Date(), "game " + gameObject.id, "\tGAMEOVER", 0); //for server debugging
 
 
                 //close remaining open connections
