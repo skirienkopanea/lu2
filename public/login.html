@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Authentication Required</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+</head>
+
+<body>
+
+  <form action="#" onsubmit="login()">
+    <p>
+      User: <input name="user" id="user">
+    </p>
+    <p>
+      Password: <input type="password" name="password" id="password">
+    </p>
+    <input type=submit value="Log in">
+  </form>
+
+  <script>
+    function login() {
+      event.preventDefault(); // Otherwise the form will be submitted
+      var user = document.getElementById("user").value;
+      var password = document.getElementById("password").value;
+
+      var http = new XMLHttpRequest();
+      var url = '/login';
+      //var params = 'user=' + user + '&password=' + password; if we want to send something i.e. a file
+      encoded = btoa(user + ':' + password);
+      decoded = atob(encoded);
+      http.open('POST', url, true);
+      http.setRequestHeader('Authorization', 'Basic ' + encoded);
+      //http.send(params);
+      http.send(); //sends the POST request, and we might receive things. But we don't go anywhere
+
+      http.onload = function () {
+        if (http.readyState === http.DONE) {
+          if (http.status === 200) {
+            document.write(http.response);
+          }
+        }
+      }
+    }
+
+  </script>
+</body>
+
+</html>
