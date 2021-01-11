@@ -35,7 +35,6 @@ app.get("/play", indexRouter);
 app.get('/login', indexRouter);
 app.get('/*auth*', indexRouter);
 app.post('/login', indexRouter);
-app.get("/basic_auth", indexRouter);
 app.get("/favicon.ico", indexRouter);
 
 //cookies (move to index)

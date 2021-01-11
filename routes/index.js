@@ -58,7 +58,11 @@ var authenticate = function (req, res) {
 //hardcoded for demonstration purposes
 if (user === "admin" && password === "1234") {
   console.log("%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", auth);
-  res.redirect("/basic_auth");
+  
+  //this is actually a client side cookie. It will never be sent back to the server. Should not be used to verify accounts
+  //This is used to keep a local copy of the user firstname to greet him every time he goes to the home page.
+  var text = '<script>document.cookie = "user_firstname='+user+'";document.cookie = "login="+new Date();window.location.replace("./");</script>';
+  res.send(text);
 } else {
   console.log("%s\t%s\t%s\t", new Date(), req.ip.substr(7), "WRNGPW", auth);
   res.send("Wrong credentials");
@@ -68,7 +72,7 @@ if (user === "admin" && password === "1234") {
 //login post request
 router.post('/login', authenticate);
 
-//auth requiring pages
+//basic auth requiring pages
 router.get('/*auth*', function (req, res, next) {
   var auth = req.headers.authorization;
   if (!auth) {
@@ -77,16 +81,5 @@ router.get('/*auth*', function (req, res, next) {
     next();
   }
 });
-
-//clients requests her wishlist
-router.get("/basic_auth", function (req, res) {
-  const wishlist = [];
-  let w1 = { type: "video game", name: "Hogwarts Legacy", priority: "high" };
-  let w2 = { type: "board game", name: "Sushi Go", priority: "medium" };
-  wishlist.push(w1);
-  wishlist.push(w2);
-  res.json(wishlist);
-});
-
 
 module.exports = router;
