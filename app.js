@@ -3,85 +3,23 @@
 //Import modules
 var express = require("express");
 var http = require("http");
-var url = require("url");
 var websocket = require("ws");
+var indexRouter = require("./routes/index.js");
+var gameStatus = require("./statTracker");
+var Game = require("./game");
 
-//Port config, create Express application, set root of application
+//Port config, create Express application
 var port = process.argv[2];
 var app = express();
+var server = http.createServer(app);
 
 //a middleware logger component
 function logger(request, response, next) {
-    console.log("%s\t%s\t%s\t%s\t", new Date(), request.ip.substr(7), request.method, request.url);
+    console.log("%s\t%s\t%s\t%s\t",new Date(),request.ip.substr(7),request.method,request.url);
     //substring to remove ipv6 format
     //for Heroku use request.headers['x-forwarded-for'] 
     next(); //control shifts to next middleware function (If we dont use this the user will be left hanging without a response)
 }
-
-//authorization component
-function authorization(req, res, next) {
-    var auth = req.headers.authorization;
-    if (!auth) {
-        var query = url.parse(req.url, true).query;
-        var user = query["user"] != undefined ? query["user"] : "";
-        var password = query["password"] != undefined ? query["password"] : "";
-    } else {
-        var parts = auth.split(' ');
-        var buf = new Buffer.from(parts[1], 'base64');
-        var login = buf.toString().split(':');
-        var user = login[0];
-        var password = login[1];
-    }
-
-    //hardcoded for demonstration purposes
-    if (user === "user" && password === "password") {
-        console.log("%s\t%s\t%s\t%s\t",new Date(),"LOGIN",user, req.url);
-        //make a session and keep those credentials somewhere
-        next();
-    }
-    else {
-        res.send("Wrong username or password.");
-    }
-
-}
-
-app.get('/wish*',authorization);
-
-const wishlist = [];
-let w1 = { type: "video game", name: "Hogwarts Legacy", priority: "high" };
-let w2 = { type: "board game", name: "Sushi Go", priority: "medium" };
-wishlist.push(w1);
-wishlist.push(w2);
-
-//clients requests her wishlist
-app.get("/wishlist", function (req, res) {
-    console.log("wishlist requested!");
-    res.json(wishlist);
-});
-
-//add wishlist item to the server
-app.get("/addWish", function (req, res) {
-    var url_parts = url.parse(req.url, true);
-    var query = url_parts.query;
-    console.log(query);
-
-    if (query["name"] == undefined) {
-        res.end("Error: the name of the wish has to be specified.");
-    }
-    else {
-        let w = { type: "", name: query["name"], priority: "" };
-
-        if (query["type"] !== undefined)
-            w.type = query["type"];
-
-        if (query["priority"] !== undefined)
-            w.priority = query["priority"];
-
-        wishlist.push(w);
-        console.log("Added " + w.name);
-        res.end("Wish added successfully");
-    }
-});
 
 app.use(logger); //register middleware component
 //The reason we use this other middleware component after the logger is because otherwise the server will respond to the client
@@ -89,42 +27,44 @@ app.use(logger); //register middleware component
 //so the following middelware components don't get to receive anything
 app.use(express.static(__dirname + "/public")); //reference point to make flexible urls (all html files are in 'public' folder)
 
-
-//HANDLING GET REQUESTS
-//not modular example, for the splash.ejs view statistics! (can be moved to index.js tho)
-app.set("view engine", "ejs"); //
-app.get('/', function (req, res) {
-    //example of data to render; here gameStatus is an object holding this information
-    res.render('splash.ejs', {
-        gamesInitialized: gameStatus.gamesInitialized,
-        gamesAborted: gameStatus.gamesAborted,
-        gamesCompleted: gameStatus.gamesCompleted,
-        onlinePlayersCount: gameStatus.onlinePlayersCount
-    });
-})
-
 //modular example
-var indexRouter = require("./routes/index.js");
+app.set("view engine", "ejs"); 
+app.get('/', indexRouter);
 app.get("/splash", indexRouter);
 app.get("/play", indexRouter);
+app.get('/login', indexRouter);
+app.get('/*auth*', indexRouter);
+app.post('/login', indexRouter);
+app.get("/basic_auth", indexRouter);
+app.get("/favicon.ico", indexRouter);
 
-/******************************LAUNCH THE SERVER******************************/
-var server = http.createServer(app);
-server.listen(process.env.PORT || port);
-/*****************************************************************************/
+//cookies (move to index)
+var credentials = require("./credentials"); //signature seed
+var cookies = require("cookie-parser"); //middleware
+app.use(cookies(credentials.cookieSecret));
 
-//MANTAINANCE: regularly clean up from memory the ended games (Hoisting will execute the web sockets before this function)
-setInterval(function () {
-    for (let i in websockets) {
-        if (Object.prototype.hasOwnProperty.call(websockets, i)) {
-            let gameObject = websockets[i];
-            if (gameObject.gameOver && gameObject.player1 == null && gameObject.player2 == null) {
-                delete websockets[i];
-            }
-        }
-    }
-}, 60000); //every minute the server will delete game objects that are finished and witout players in it (they can be chatting man!)
-
+app.get("/sendMeCookies", function (req, res) {
+    res.cookie("path_cookie", "cookie_roads", { path: "/listAllCookies" }); //default path is the current one
+    res.cookie("expiring_cookie", "bye_in_1_min", { expires: new Date(Date.now() + 60000) }); //deafult expire is this session
+    res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true, }); //default signed is false
+    res.send("Cookies sent to client"); //end the request
+});
+/*
+Cookies the client sends back to the server appear in the HTTP request object and can be accessed through req.cookies.
+Here, a distinction is made between signed and unsigned cookies:
+you can only be sure that the signed cookies have not been tampered with.
+*/
+app.get("/listAllCookies", function (req, res) {
+    console.log("++ unsigned ++");
+    console.log(req.cookies.path_cookie, req.cookies["expiring_cookie"]); //access a specific cookie
+    console.log("++ signed ++");
+    console.log(req.signedCookies); //lists all cookies
+    res.clearCookie("signed_cookie"); //we can manually expire them and set the path to / (so we can delete it for all paths)
+    res.clearCookie("path_cookie");
+    res.clearCookie("expiring_cookie");
+    res.send("");
+});
+//
 
 /******************************SOCKET COMMUNICATION ******************************/
 
@@ -132,9 +72,6 @@ setInterval(function () {
 var websockets = {}; //property: websocket, value: game
 var connectionID = 0; //each websocket receives a unique ID
 const wss = new websocket.Server({ server }); //initialise socket object
-
-var gameStatus = require("./statTracker");
-var Game = require("./game");
 
 //we start with 0 intialised games and set a currentGame variable object to be gameOver = true for the logic below.
 //this is done like this so that only when there's a connection a game is initalised.
@@ -297,3 +234,19 @@ wss.on("connection", function connection(socket) {
         }
     });
 });
+
+//MANTAINANCE: regularly clean up from memory the ended games (Hoisting will execute the web sockets before this function)
+setInterval(function () {
+    for (let i in websockets) {
+        if (Object.prototype.hasOwnProperty.call(websockets, i)) {
+            let gameObject = websockets[i];
+            if (gameObject.gameOver && gameObject.player1 == null && gameObject.player2 == null) {
+                delete websockets[i];
+            }
+        }
+    }
+}, 60000); //every minute the server will delete game objects that are finished and witout players in it (they can be chatting man!)
+
+
+//Finally, after everything is set up, listen on port
+server.listen(process.env.PORT || port);
