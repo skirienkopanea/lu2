@@ -4,65 +4,52 @@
 var express = require("express");
 var http = require("http");
 var websocket = require("ws");
-var indexRouter = require("./routes/index.js");
+var indexRouter = require("./routes/index.js"); //middleware
+var loginRouter = require("./routes/login.js"); //middleware
 var gameStatus = require("./statTracker");
 var Game = require("./game");
 
-//Port config, create Express application
+//Port config, create Express application an create server
 var port = process.argv[2];
 var app = express();
 var server = http.createServer(app);
 
-//a middleware logger component
-function logger(request, response, next) {
-    console.log("%s\t%s\t%s\t%s\t",new Date(),request.ip.substr(7),request.method,request.url);
-    //substring to remove ipv6 format
-    //for Heroku use request.headers['x-forwarded-for'] 
+//add middleware components
+//url logger
+app.use(function (request, response, next) {
+    console.log("%s\t%s\t%s\t%s\t", new Date(), request.ip.substr(7), request.method, request.url);
+    //for Heroku use request.headers['x-forwarded-for'] for the ip
     next(); //control shifts to next middleware function (If we dont use this the user will be left hanging without a response)
-}
+});
 
-app.use(logger); //register middleware component
-//The reason we use this other middleware component after the logger is because otherwise the server will respond to the client
-//with the request resource i.e. /favicon.ico and once the request is send that closes the cycle the request-response cycle
-//so the following middelware components don't get to receive anything
-app.use(express.static(__dirname + "/public")); //reference point to make flexible urls (all html files are in 'public' folder)
+//this one feeds all the files requested that are nested in /public folder (this saves us from having to create request handlers for images, html files, audios etc.)
+app.use(express.static(__dirname + "/public"));
 
-//modular example
-app.set("view engine", "ejs"); 
+//Engine to render data
+app.set("view engine", "ejs");
+
+//modular example of Requests handler
 app.get('/', indexRouter);
+app.get("/favicon.ico", indexRouter);
 app.get("/splash", indexRouter);
 app.get("/play", indexRouter);
-app.get('/login', indexRouter);
-app.get('/*auth*', indexRouter);
-app.post('/login', indexRouter);
-app.get("/favicon.ico", indexRouter);
+app.get('/login*', loginRouter); //uses sessions
+app.post('/login', loginRouter);
+app.get('/logout', loginRouter);
 
-//cookies (move to index)
-var credentials = require("./credentials"); //signature seed
-var cookies = require("cookie-parser"); //middleware
-app.use(cookies(credentials.cookieSecret));
+//not found/error handlers
+/* app.use(function (req, res, next) {
+    res.status(404).redirect("/images/error.jpg");
+});
+app.use(function (err, req, res, next) {
+    console.error(err.stack)
+    res.status(500).redirect("/images/error.jpg");
+}); */
 
-app.get("/sendMeCookies", function (req, res) {
-    res.cookie("path_cookie", "cookie_roads", { path: "/listAllCookies" }); //default path is the current one
-    res.cookie("expiring_cookie", "bye_in_1_min", { expires: new Date(Date.now() + 60000) }); //deafult expire is this session
-    res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true, }); //default signed is false
-    res.send("Cookies sent to client"); //end the request
-});
-/*
-Cookies the client sends back to the server appear in the HTTP request object and can be accessed through req.cookies.
-Here, a distinction is made between signed and unsigned cookies:
-you can only be sure that the signed cookies have not been tampered with.
-*/
-app.get("/listAllCookies", function (req, res) {
-    console.log("++ unsigned ++");
-    console.log(req.cookies.path_cookie, req.cookies["expiring_cookie"]); //access a specific cookie
-    console.log("++ signed ++");
-    console.log(req.signedCookies); //lists all cookies
-    res.clearCookie("signed_cookie"); //we can manually expire them and set the path to / (so we can delete it for all paths)
-    res.clearCookie("path_cookie");
-    res.clearCookie("expiring_cookie");
-    res.send("");
-});
+//session
+//pure server-client cookies
+app.get("/sendMeCookies", loginRouter);
+app.get("/listAllCookies", loginRouter);
 //
 
 /******************************SOCKET COMMUNICATION ******************************/
