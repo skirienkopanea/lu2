@@ -23,6 +23,8 @@ router.use(sessions(sessionConfiguration));
 router.get("/login*", function (req, res, next) {
     if (!req.session.attempts) { /*If it doesnt exist, create it*/
         req.session.attempts = 1;
+    } else if (req.session.attempts>5){
+        res.send("Too many wrong logging attempts. Account blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
     }
     var query = url.parse(req.url, true).query;
     if (query["user"] != undefined) { // User and password sent via url paramaters...
@@ -57,7 +59,7 @@ router.get("/login*", function (req, res, next) {
         req.session.user_auth = auth; //save the successful previous authentication during the session, url login does not have an auth header, therefore the auth session is still undefined (URL login in this implementation would require you to login each time. At least it does save your name cookie for the greetings (but anywhere where auth is required it will prompt you again to login))
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "OKAUTH", user, req.session.attempts);
         req.session.attempts = 1; //reset attempt counter
-        res.cookie("user_firstname", user, { signed: true, });
+        res.cookie("user_firstname", user + new Date(), { signed: true,  secure: true}); //signed for authentication, secure for encryption, new Date to ensure that new session ids are sent per login (to do, validate session id on a database)
         next();
     } else {
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "NOAUTH", auth);
@@ -73,6 +75,8 @@ router.get("/login", function (req, res) {
 router.post('/login', function (req, res) {
     if (!req.session.attempts) { /*If it doesnt exist, create it*/
         req.session.attempts = 1;
+    } else if (req.session.attempts>5){
+        res.send("Too many wrong logging attempts. You are blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
     }
     var auth = req.headers.authorization;
     var parts = auth.split(' ');
@@ -81,9 +85,7 @@ router.post('/login', function (req, res) {
     var user = login[0];
     var password = login[1];
 
-    if (!user){
-        res.sendFile("login.html", { root: "./public" });
-    } else if (!validator.isEmail(user)){ //input validation
+    if (!validator.isEmail(""+user)){ //input validation
         res.send("That is not a valid email");
     } else if (SqlString.escape(user) === "'admin@lu2.com'" && SqlString.escape(password) === "'1234'") {
         req.session.user_auth = auth; //save the successful submitted authentication during the session, so login is skiped
@@ -91,7 +93,7 @@ router.post('/login', function (req, res) {
         req.session.attempts = 1; //reset attempt counter
         //this is actually a client side cookie. It will never be sent back to the server. Should not be used to verify accounts
         //This is used to keep a local copy of the user firstname to greet him every time he goes to the home page.
-        res.cookie("user_firstname", user, { signed: true, });
+        res.cookie("user_firstname", user + new Date(), { signed: true,  secure: true}); //signed for authentication, secure for encryption, new Date to ensure that new session ids are sent per login (to do, validate session id on a database)
         var text = '<script>window.location.replace("./");</script>';
         res.send(text);
     } else {
@@ -110,9 +112,9 @@ router.get('/logout', function (req, res) {
 
 //pure server-client cookies
 router.get("/sendMeCookies", function (req, res) {
-    res.cookie("path_cookie", "cookie_roads", { path: "/listAllCookies" }); //default path is the current one
+    res.cookie("path_cookie", "cookie_roads", { path: "/listAllCookies"}); //default path is the current one
     res.cookie("expiring_cookie", "bye_in_1_min", { expires: new Date(Date.now() + 60000) }); //deafult expire is this session
-    res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true, }); //default signed is false
+    res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true }); //default signed is false
     res.send("Cookies sent to client"); //end the request
 });
 /*
