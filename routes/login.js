@@ -47,13 +47,13 @@ router.get("/login*", function (req, res, next) {
 
     //hardcoded for demonstration purposes
     if (user === "admin" && password === "1234") {
-        req.session.user_auth = auth; //save the successful submitted authentication during the session, so login is skiped
-        console.log("%s\t%s\t%s\t", new Date(), req.ip.substr(7), "OKAUTH", user, req.session.attempts);
+        req.session.user_auth = auth; //save the successful previous authentication during the session, url login does not have an auth header, therefore the auth session is still undefined (URL login in this implementation would require you to login each time. At least it does save your name cookie for the greetings (but anywhere where auth is required it will prompt you again to login))
+        console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "OKAUTH", user, req.session.attempts);
         req.session.attempts = 1; //reset attempt counter
         res.cookie("user_firstname", user, { signed: true, });
         next();
     } else {
-        console.log("%s\t%s\t%s\t", new Date(), req.ip.substr(7), "NOAUTH", auth);
+        console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "NOAUTH", auth);
         res.sendFile("login.html", { root: "./public" });
     }
 });
@@ -77,7 +77,7 @@ router.post('/login', function (req, res) {
     //hardcoded for demonstration purposes
     if (user === "admin" && password === "1234") {
         req.session.user_auth = auth; //save the successful submitted authentication during the session, so login is skiped
-        console.log("%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", user, req.session.attempts);
+        console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", user, req.session.attempts);
         req.session.attempts = 1; //reset attempt counter
         //this is actually a client side cookie. It will never be sent back to the server. Should not be used to verify accounts
         //This is used to keep a local copy of the user firstname to greet him every time he goes to the home page.
@@ -85,7 +85,7 @@ router.post('/login', function (req, res) {
         var text = '<script>window.location.replace("./");</script>';
         res.send(text);
     } else {
-        console.log("%s\t%s\t%s\t", new Date(), req.ip.substr(7), "WRNGPW", auth, req.session.attempts);
+        console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "WRNGPW", auth, req.session.attempts);
         res.send("Wrong loging attempts " + req.session.attempts++);;
     }
 });

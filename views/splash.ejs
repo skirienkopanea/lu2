@@ -27,15 +27,18 @@
       var cookie = cookiesArray[0].split("=");
 
       if (cookie[0]=="user_firstname") {
-         alert('Hi ' + cookie[1]);
-
+         var dot = cookie[1].indexOf('.');
+         var name = cookie[1].substr(4,dot-4);
+         
          //local storage demo
-         localStorage.setItem('login_date',cookiesArray[1].split("=")[1]); //login date
-         let note = localStorage.getItem('login_date'); //retrieve an item with a specific key
+         localStorage.setItem('time', new Date); //login date
+         let time = localStorage.getItem('time'); //retrieve an item with a specific key
+
+         alert('Hi ' + name + ' the time is ' + time);
                   
          //delete a cookie by RESETTING the expiration date
          //document.cookie = "user_firstname=" + cookie[1] + "; expires=Fri, 24-Jan-1970 12:45:00 GMT";
-         localStorage.removeItem('login_date'); //remove an item
+         localStorage.removeItem('time'); //remove an item
       }
 
    </script>
