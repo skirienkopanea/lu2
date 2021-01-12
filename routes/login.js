@@ -3,6 +3,9 @@ var url = require("url");
 var cookies = require("cookie-parser");         //middleware (according to lecturer order is important)
 var sessions = require("express-session");      //middleware (sessions after cookies)
 var credentials = require("../credentials");     //signature seed
+var validator = require('validator');
+var SqlString = require('sqlstring');
+
 var router = express.Router();
 
 //sessions config
@@ -45,8 +48,12 @@ router.get("/login*", function (req, res, next) {
         var password = login[1];
     }
 
-    //hardcoded for demonstration purposes
-    if (user === "admin" && password === "1234") {
+    
+    if (!user){
+        res.sendFile("login.html", { root: "./public" });
+    } else if (!validator.isEmail(user)){ //input validation
+        res.send("That is not a valid email");
+    } else if (SqlString.escape(user) === "'admin@lu2.com'" && SqlString.escape(password) === "'1234'") { //hardcoded for demonstration purposes
         req.session.user_auth = auth; //save the successful previous authentication during the session, url login does not have an auth header, therefore the auth session is still undefined (URL login in this implementation would require you to login each time. At least it does save your name cookie for the greetings (but anywhere where auth is required it will prompt you again to login))
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "OKAUTH", user, req.session.attempts);
         req.session.attempts = 1; //reset attempt counter
@@ -74,8 +81,11 @@ router.post('/login', function (req, res) {
     var user = login[0];
     var password = login[1];
 
-    //hardcoded for demonstration purposes
-    if (user === "admin" && password === "1234") {
+    if (!user){
+        res.sendFile("login.html", { root: "./public" });
+    } else if (!validator.isEmail(user)){ //input validation
+        res.send("That is not a valid email");
+    } else if (SqlString.escape(user) === "'admin@lu2.com'" && SqlString.escape(password) === "'1234'") {
         req.session.user_auth = auth; //save the successful submitted authentication during the session, so login is skiped
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", user, req.session.attempts);
         req.session.attempts = 1; //reset attempt counter

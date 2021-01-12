@@ -27,7 +27,7 @@
       var cookie = cookiesArray[0].split("=");
 
       if (cookie[0]=="user_firstname") {
-         var dot = cookie[1].indexOf('.');
+         var dot = cookie[1].indexOf('%40'); //code for @
          var name = cookie[1].substr(4,dot-4);
          
          //local storage demo
