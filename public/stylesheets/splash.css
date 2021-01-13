@@ -61,3 +61,7 @@ main::before {
       background-color: var(--medium); /*does half the blink then resets*/
     }
   }
+
+  #user_nickname{
+      font-size:x-large;
+  }

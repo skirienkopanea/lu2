@@ -97,7 +97,7 @@ router.post('/login', function (req, res, next) {
         req.session.user_auth = auth; //update session cokie with basic auth headers
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", user, req.session.attempts);
         req.session.attempts = 0; //reset attempt counter
-        res.cookie("user_firstname", user, { signed: true,  secure: true}); //trivial cookie... signed to check origniality, secure for encryption, new Date to ensure that different (yet easy to predict) session ids are sent per login (to do, validate session id on a database and use a harder encryption logarithm). This cookie just says hi, even if you are logged out after the session was expired. It's an example of a cookie that could be use as "user preferences" like for instance toggling dark mode
+        res.cookie("user_nickname", user, { signed: true,  secure: true}); //trivial cookie... signed to check origniality, secure for encryption, new Date to ensure that different (yet easy to predict) session ids are sent per login (to do, validate session id on a database and use a harder encryption logarithm). This cookie just says hi, even if you are logged out after the session was expired. It's an example of a cookie that could be use as "user preferences" like for instance toggling dark mode
         next();
     } else {
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "WRNGPW", auth, req.session.attempts);
@@ -116,10 +116,10 @@ router.post('/login', function (req, res) {
 });
 
 router.get('/logout', function (req, res) {
-    res.clearCookie('user_firstname'); //we only delete this greeting cookie, but we might keep others such as "dark mode ON" preference even after logging out
+    res.clearCookie('user_nickname'); //we only delete this greeting cookie, but we might keep others such as "dark mode ON" preference even after logging out
     req.session.destroy();
-    res.redirect("/");
-})
+    res.send("<script>localStorage.removeItem('visited');window.location.replace('/');</script>");
+});
 
 /*
 Cookies the client sends back to the server appear in the HTTP request object and can be accessed through req.cookies.
@@ -143,7 +143,7 @@ router.get("/fresh", function (req, res) {
     req.session.destroy();
     res.clearCookie('connect.sid');
     //delete cookies
-    res.clearCookie('user_firstname');
+    res.clearCookie('user_nickname');
     res.clearCookie('path_cookie', {domain: 'localhost', path: '/take_me_home'});
     res.clearCookie('expiring_cookie');
     res.clearCookie('signed_cookie');

@@ -9,8 +9,9 @@
 
 <body><img src="images/logo.jpg">
    <main>
-      <form action="game.html" method="get">
+      <form action="game.html" method="get" onsubmit="setName()">
          <p><button id="joingame" type="submit">Play</button></p>
+         <p><input type ="text" id="user_nickname" placeholder="Play as..."></input></p>
          <p><button id="rules" type="button">Rules</button></p>
       </form>
       <div class="grid-container">
@@ -22,24 +23,35 @@
             <div><%= gamesCompleted%><%if (gamesCompleted != 1) {%> games <%} else {%> game <%} %>completed</div>
    </main>
    <script>
-
-      var cookiesArray = document.cookie.split('; ');
-      var cookie = cookiesArray[0].split("=");
-
-      if (cookie[0]=="user_firstname") {
-         var dot = cookie[1].indexOf('%40'); //code for @
-         var name = cookie[1].substr(4,dot-4);
-         
-         //local storage demo
-         localStorage.setItem('time', new Date); //login date
-         let time = localStorage.getItem('time'); //retrieve an item with a specific key
-
-         alert('Hi ' + name + ' the time is ' + time);
-                  
-         //delete a cookie by RESETTING the expiration date
-         //document.cookie = "user_firstname=" + cookie[1] + "; expires=Fri, 24-Jan-1970 12:45:00 GMT";
-         localStorage.removeItem('time'); //remove an item
+      function setName(){
+         document.cookie = "user_nickname=" + document.getElementById("user_nickname").value; //to remove: + "; expires=Fri, 24-Jan-1970 12:45:00 GMT";
       }
+      //get user name
+      var cookiesArray = document.cookie.split('; '); //does not include session id
+      let user = undefined;
+
+      for (i = 0; i < cookiesArray.length; i++) {
+         var cookie = cookiesArray[i].split("=");
+         if (cookie[0] == "user_nickname") {
+            var dot = cookie[1].indexOf('%40'); //code for @
+            //allow for unsigned, unregistered usernames
+            if (dot != -1) {
+                  user = cookie[1].substr(4, dot - 4);
+            } else {
+                  user = cookie[1];
+            }
+            document.getElementById("user_nickname").value = user; 
+         }
+      }
+
+      //local storage demo
+      let visited = localStorage.getItem('visited'); 
+      if (!visited && user){
+         alert('Welcome back ' + user); //only greet after the first login
+         localStorage.setItem('visited', true);
+      }
+      
+
 
    </script>
 </body>
