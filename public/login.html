@@ -19,6 +19,14 @@
   </form>
 
   <script>
+
+    var url = new URL(document.URL);
+    var message = url.searchParams.get("message");
+
+    if (message){
+      alert(message);
+    }
+
     function login() {
       event.preventDefault(); // Otherwise the form will be submitted
       var user = document.getElementById("user").value;
