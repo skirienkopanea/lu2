@@ -80,7 +80,7 @@ router.get("/login", function (req, res) {
 router.post('/login', function (req, res, next) {
 
     if (isBruteForce(req)){
-        return res.send("Too many wrong logging attempts.");
+        return res.send("Too many wrong logging attempts."); //returning ensures taht the rest of the code is not executed
     }
 
     var auth = req.headers.authorization;

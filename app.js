@@ -44,13 +44,13 @@ app.get("/cookies", loginRouter);
 app.get("/fresh", loginRouter);
 
 //not found/error handlers (this needs to be at the end otherwise you wont have access to any page)
-/* app.use(function (req, res, next) {
+app.use(function (req, res, next) {
     res.status(404).redirect("/images/error.jpg");
 });
 app.use(function (err, req, res, next) {
     console.error(err.stack)
     res.status(500).redirect("/images/error.jpg");
-}); */
+});
 
 /******************************SOCKET COMMUNICATION ******************************/
 
