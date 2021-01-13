@@ -17,7 +17,10 @@ for (i = 0; i < cookiesArray.length; i++) {
     }
 }
 
-const socket = new WebSocket("ws://localhost:3000" || "wss://parchispara2.herokuapp.com/");
+const socket = new WebSocket("ws://localhost:3000");
+socket.onerror=function(){
+    socket = new WebSocket("wss://parchispara2.herokuapp.com/");
+}
 
 socket.onopen = function () {
     let message =
