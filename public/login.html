@@ -34,14 +34,14 @@
 
       var http = new XMLHttpRequest();
       var url = '/login';
-      //var params = 'user=' + user + '&password=' + password; if we want to send something i.e. a file
+      var params = '?redirect=' + document.URL;
       encoded = btoa(user + ':' + password);
       decoded = atob(encoded);
-      http.open('POST', url, true);
+      http.open('POST', url + params, true);
       http.setRequestHeader('Authorization', 'Basic ' + encoded);
-      //http.send(params);
       http.send(); //sends the POST request, and we might receive things. But we don't go anywhere
-
+      
+      //Therefore we listen for a response with 200 status
       http.onload = function () {
         if (http.readyState === http.DONE) {
           if (http.status === 200) {

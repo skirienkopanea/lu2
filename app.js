@@ -33,24 +33,24 @@ app.get('/', indexRouter);
 app.get("/favicon.ico", indexRouter);
 app.get("/splash", indexRouter);
 app.get("/play", indexRouter);
-app.get('/login*', loginRouter); //uses sessions
-app.post('/login', loginRouter);
-app.get('/logout', loginRouter);
+app.get('/auth*', loginRouter); //uses sessions (It's very important that this is executed before any other child of /auth/...)
+app.get('/login', loginRouter); //uses sessions (if already loged in sends to homepage)
+app.post('/login', loginRouter); //creates a session
+app.get('/logout', loginRouter); //deletes the session
+app.get('/auth/admin_greeting', indexRouter); //uses sessions (but does not need to be in the loginRouter as /auth* already covers it) does not serve any particular purpose, just for demonstration
 
-//not found/error handlers
-/* app.use(function (req, res, next) {
+//server-client cookies (no particular purpose, but could be used to set user preferences)
+app.get("/cookies", loginRouter);
+app.get("/fresh", loginRouter);
+
+//not found/error handlers (this needs to be at the end otherwise you wont have access to any page)
+app.use(function (req, res, next) {
     res.status(404).redirect("/images/error.jpg");
 });
 app.use(function (err, req, res, next) {
     console.error(err.stack)
     res.status(500).redirect("/images/error.jpg");
-}); */
-
-//session
-//pure server-client cookies
-app.get("/sendMeCookies", loginRouter);
-app.get("/listAllCookies", loginRouter);
-//
+});
 
 /******************************SOCKET COMMUNICATION ******************************/
 

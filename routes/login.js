@@ -19,30 +19,29 @@ sessionConfiguration = {
 };
 router.use(sessions(sessionConfiguration));
 
-//Login page GET handler
-router.get("/login*", function (req, res, next) {
+//GET handler for pages that require authentication (does not create a new session)
+router.get("/auth*", function (req, res, next) {
+
+    //prevent bruteforce authentication attempts
+    //make it a function
     if (!req.session.attempts) { /*If it doesnt exist, create it*/
         req.session.attempts = 1;
     } else if (req.session.attempts>5){
-        res.send("Too many wrong logging attempts. Account blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
+        //return so the function stops here (because even though we close the send-request cycle, javascript will continue to execute the rest of the code, sending to responses will give a header error)
+        return res.send("Too many wrong logging attempts. Account blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
     }
+
+    //Auth based on url paramaters (not secure at all). Does not log you in, only would confirm if credentials match
     var query = url.parse(req.url, true).query;
-    if (query["user"] != undefined) { // User and password sent via url paramaters...
-        //Demo of log in based on url paramaters (not secure at all)
-        //as a matter of fact it does not logs you in, it only checks if params are ok
+    if (query["user"] != undefined) {
         var user = query["user"] != undefined ? query["user"] : ""
         var password = query["password"] != undefined ? query["password"] : "";
     }
 
-    if (req.session.user_auth) { // the session (cookie) exists!
-        var auth = req.session.user_auth //we double check that the session has not been tampered
-        var parts = auth.split(' ');
-        var buf = new Buffer.from(parts[1], 'base64');
-        var login = buf.toString().split(':');
-        var user = login[0];
-        var password = login[1];
-    } else if (auth) {          // Basic Auth Header sent!
-        var auth = req.headers.authorization;
+    // the session (cookie) exists! Time to confirm (In practice, new session ids would be generated in a database, so that old sessions here become obsolete. In this implementation session id are fixed though)
+    if (req.session.user_auth || auth) {
+        //make it a function
+        var auth = req.session.user_auth
         var parts = auth.split(' ');
         var buf = new Buffer.from(parts[1], 'base64');
         var login = buf.toString().split(':');
@@ -50,34 +49,40 @@ router.get("/login*", function (req, res, next) {
         var password = login[1];
     }
 
-    
+    //input validation
     if (!user){
         res.sendFile("login.html", { root: "./public" });
-    } else if (!validator.isEmail(user)){ //input validation
-        res.send("<script>window.location.replace('./login?message=Invalid email');</script>");
+    } else if (!validator.isEmail(user)){
+        res.send("<script>window.location.replace('?message=Invalid email');</script>"); //to do: replace with dom
     } else if (SqlString.escape(user) === "'admin@lu2.com'" && SqlString.escape(password) === "'1234'") { //hardcoded for demonstration purposes
-        req.session.user_auth = auth; //save the successful previous authentication during the session, url login does not have an auth header, therefore the auth session is still undefined (URL login in this implementation would require you to login each time. At least it does save your name cookie for the greetings (but anywhere where auth is required it will prompt you again to login))
-        console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "OKAUTH", user, req.session.attempts);
-        req.session.attempts = 1; //reset attempt counter
-        res.cookie("user_firstname", user + new Date(), { signed: true,  secure: true}); //signed for authentication, secure for encryption, new Date to ensure that new session ids are sent per login (to do, validate session id on a database)
+        //no sessions are created with GET requests
+        console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "OKAUTH", user);
         next();
-    } else {
+    } else { //wrong (or expried) credentials, therefore delete the session
+        req.session.destroy();
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "NOAUTH", auth);
         res.sendFile("login.html", { root: "./public" });
     }
 });
 
 router.get("/login", function (req, res) {
-    res.redirect("/"); //redirect to homepage but only after being authenticated before (order of middleware matters)
+    if (!req.session.user_auth){
+        res.sendFile("login.html", { root: "./public" });
+    } else {
+        res.redirect('/');
+    }
 });
 
 //login for POST log in (POST webform with auth headers)
-router.post('/login', function (req, res) {
-    if (!req.session.attempts) { /*If it doesnt exist, create it*/
+router.post('/login', function (req, res, next) {
+
+    //Make it a function to avoid code duplication
+    if (!req.session.attempts) {
         req.session.attempts = 1;
     } else if (req.session.attempts>5){
-        res.send("Too many wrong logging attempts. You are blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
+        return res.send("Too many wrong logging attempts. You are blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
     }
+    //make it a function
     var auth = req.headers.authorization;
     var parts = auth.split(' ');
     var buf = new Buffer.from(parts[1], 'base64');
@@ -86,49 +91,61 @@ router.post('/login', function (req, res) {
     var password = login[1];
 
     if (!validator.isEmail(""+user)){ //input validation
-        res.send("<script>window.location.replace('./login?message=Invalid email');</script>");
+        res.send("<script>window.location.replace('?message=Invalid email');</script>"); //this is actually bad practice, a malicious user couuld change the content of the message and try to deceive a victim by looking as if the original website produced the modified message (i.e. the malicious user could have as message 'There is a problem with your account, go to "malicious website" to try to login again'. A better practice would just to append the message via DOM features)
     } else if (SqlString.escape(user) === "'admin@lu2.com'" && SqlString.escape(password) === "'1234'") {
-        req.session.user_auth = auth; //save the successful submitted authentication during the session, so login is skiped
+        req.session.user_auth = auth; //update session cokie with basic auth headers
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", user, req.session.attempts);
-        req.session.attempts = 1; //reset attempt counter
-        //this is actually a client side cookie. It will never be sent back to the server. Should not be used to verify accounts
-        //This is used to keep a local copy of the user firstname to greet him every time he goes to the home page.
-        res.cookie("user_firstname", user + new Date(), { signed: true,  secure: true}); //signed for authentication, secure for encryption, new Date to ensure that new session ids are sent per login (to do, validate session id on a database)
-        var text = '<script>window.location.replace("./");</script>';
-        res.send(text);
+        req.session.attempts = 0; //reset attempt counter
+        res.cookie("user_firstname", user, { signed: true,  secure: true}); //trivial cookie... signed to check origniality, secure for encryption, new Date to ensure that different (yet easy to predict) session ids are sent per login (to do, validate session id on a database and use a harder encryption logarithm). This cookie just says hi, even if you are logged out after the session was expired. It's an example of a cookie that could be use as "user preferences" like for instance toggling dark mode
+        next();
     } else {
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "WRNGPW", auth, req.session.attempts);
-        res.send("<script>window.location.replace('./login?message=" + "Wrong loging attempts: " + req.session.attempts++ + "');</script>");
+        res.send("<script>window.location.replace('?message=" + "Wrong loging attempts: " + req.session.attempts++ + "');</script>");
+    }
+});
+
+//after the login has been successful, redirect to the page for which auth was required (or home page)
+router.post('/login', function (req, res) {
+    var query = url.parse(req.url, true).query;
+    if (!query["redirect"].includes('/login') && query["redirect"] != undefined){
+        res.send("<script>window.location.replace('"+query["redirect"]+"');</script>");
+    } else {
+        res.send("<script>window.location.replace('/');</script>");
     }
 });
 
 router.get('/logout', function (req, res) {
-    res.clearCookie('user_firstname'); //might not access client cookies
-                                        //but might delete them
+    res.clearCookie('user_firstname'); //we only delete this greeting cookie, but we might keep others such as "dark mode ON" preference even after logging out
     req.session.destroy();
     res.redirect("/");
 })
 
-
-//pure server-client cookies
-router.get("/sendMeCookies", function (req, res) {
-    res.cookie("path_cookie", "cookie_roads", { path: "/listAllCookies"}); //default path is the current one
-    res.cookie("expiring_cookie", "bye_in_1_min", { expires: new Date(Date.now() + 60000) }); //deafult expire is this session
-    res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true }); //default signed is false
-    res.send("Cookies sent to client"); //end the request
-});
 /*
 Cookies the client sends back to the server appear in the HTTP request object and can be accessed through req.cookies.
 Here, a distinction is made between signed and unsigned cookies:
 you can only be sure that the signed cookies have not been tampered with.
 */
-router.get("/listAllCookies", function (req, res) {
+router.get("/cookies", function (req, res) {
+    res.cookie("path_cookie", "cookie_roads", {domain: 'localhost', path: '/take_me_home'}); //default path is the current one
+    res.cookie("expiring_cookie", "bye_in_1_min", { expires: new Date(Date.now() + 60000) }); //deafult expire is this session
+    res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true }); //default signed is false
+    res.send("<script>alert('Cookies sent');</script>"); //end the request
+    //we can run more code after res.send
     console.log("++ unsigned ++");
     console.log(req.cookies); //access a specific cookie
     console.log("++ signed ++");
     console.log(req.signedCookies); //lists all cookies
-    res.send();
 });
-//
 
+router.get("/fresh", function (req, res) {
+    //delete session (stuff, but not the id itself)
+    req.session.destroy();
+    res.clearCookie('connect.sid');
+    //delete cookies
+    res.clearCookie('user_firstname');
+    res.clearCookie('path_cookie', {domain: 'localhost', path: '/take_me_home'});
+    res.clearCookie('expiring_cookie');
+    res.clearCookie('signed_cookie');
+    res.send("<script>alert('Cookies deleted');</script>"); //end the request
+});
 module.exports = router;

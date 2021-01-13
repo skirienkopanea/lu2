@@ -26,4 +26,9 @@ router.get("/play", function (req, res) {
   res.sendFile("game.html", { root: "./public" });
 });
 
+/* Pressing the 'PLAY' button, returns this page */
+router.get("/auth/admin_greeting", function (req, res) {
+  res.send("This data is only reached by authenticated users");
+});
+
 module.exports = router;
