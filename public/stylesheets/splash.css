@@ -22,7 +22,7 @@ button {
 /* :hover, ::after */
 #rules:hover::after {
     content: "\APlayer 1 (red) always starts\A 30 seconds to make a move: click 'ROLL DICE', then on token, then on cell\A Bring all tokens to your colored star cell to win\ALanding on an a cell with a token sends it back to its base";
-    font-size:medium;
+    font-size:large;
 }
 /* ::before*/
 main::before {
