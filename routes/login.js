@@ -19,37 +19,40 @@ sessionConfiguration = {
 };
 router.use(sessions(sessionConfiguration));
 
+var isBruteForce = function(req){
+    if (!req.session.attempts){
+        req.session.attempts = 1;
+    }
+const maxAttempts = 5;
+return (req.session.attempts>maxAttempts);
+}
+
 //GET handler for pages that require authentication (does not create a new session)
 router.get("/auth*", function (req, res, next) {
 
-    //prevent bruteforce authentication attempts
-    //make it a function
-    if (!req.session.attempts) { /*If it doesnt exist, create it*/
-        req.session.attempts = 1;
-    } else if (req.session.attempts>5){
+    if (isBruteForce(req)){
         //return so the function stops here (because even though we close the send-request cycle, javascript will continue to execute the rest of the code, sending to responses will give a header error)
         return res.send("Too many wrong logging attempts. Account blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
     }
 
-    //Auth based on url paramaters (not secure at all). Does not log you in, only would confirm if credentials match
+    // the session (cookie) exists!
+    if (req.session.user_auth) {
+        var auth = req.session.user_auth
+        var parts = auth.split(' ');
+        var buf = new Buffer.from(parts[1], 'base64');
+        var login = buf.toString().split(':'); 
+        var user = login[0];
+        var password = login[1];
+    }
+
+    //Auth based on url paramaters (overwrite session, that's the intention after all). Does not log you in, only would confirm if credentials match
     var query = url.parse(req.url, true).query;
     if (query["user"] != undefined) {
         var user = query["user"] != undefined ? query["user"] : ""
         var password = query["password"] != undefined ? query["password"] : "";
     }
 
-    // the session (cookie) exists! Time to confirm (In practice, new session ids would be generated in a database, so that old sessions here become obsolete. In this implementation session id are fixed though)
-    if (req.session.user_auth || auth) {
-        //make it a function
-        var auth = req.session.user_auth
-        var parts = auth.split(' ');
-        var buf = new Buffer.from(parts[1], 'base64');
-        var login = buf.toString().split(':');
-        var user = login[0];
-        var password = login[1];
-    }
-
-    //input validation
+    //GET credential validation
     if (!user){
         res.sendFile("login.html", { root: "./public" });
     } else if (!validator.isEmail(user)){
@@ -76,13 +79,10 @@ router.get("/login", function (req, res) {
 //login for POST log in (POST webform with auth headers)
 router.post('/login', function (req, res, next) {
 
-    //Make it a function to avoid code duplication
-    if (!req.session.attempts) {
-        req.session.attempts = 1;
-    } else if (req.session.attempts>5){
-        return res.send("Too many wrong logging attempts. You are blocked (till the end of the session). To do: update a database field instead and not rely on session data (can be changed by user)");
+    if (isBruteForce(req)){
+        return res.send("Too many wrong logging attempts.");
     }
-    //make it a function
+
     var auth = req.headers.authorization;
     var parts = auth.split(' ');
     var buf = new Buffer.from(parts[1], 'base64');
@@ -90,6 +90,7 @@ router.post('/login', function (req, res, next) {
     var user = login[0];
     var password = login[1];
 
+    //POST credential validation    
     if (!validator.isEmail(""+user)){ //input validation
         res.send("<script>window.location.replace('?message=Invalid email');</script>"); //this is actually bad practice, a malicious user couuld change the content of the message and try to deceive a victim by looking as if the original website produced the modified message (i.e. the malicious user could have as message 'There is a problem with your account, go to "malicious website" to try to login again'. A better practice would just to append the message via DOM features)
     } else if (SqlString.escape(user) === "'admin@lu2.com'" && SqlString.escape(password) === "'1234'") {
@@ -130,7 +131,7 @@ router.get("/cookies", function (req, res) {
     res.cookie("expiring_cookie", "bye_in_1_min", { expires: new Date(Date.now() + 60000) }); //deafult expire is this session
     res.cookie("signed_cookie", "You_can_see_me.But_with_encrypted_signature", { signed: true }); //default signed is false
     res.send("<script>alert('Cookies sent');</script>"); //end the request
-    //we can run more code after res.send
+    //we can run more code after res.send (as long as we do not send more responses to the client)
     console.log("++ unsigned ++");
     console.log(req.cookies); //access a specific cookie
     console.log("++ signed ++");
@@ -148,4 +149,5 @@ router.get("/fresh", function (req, res) {
     res.clearCookie('signed_cookie');
     res.send("<script>alert('Cookies deleted');</script>"); //end the request
 });
+
 module.exports = router;

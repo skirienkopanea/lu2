@@ -27,8 +27,8 @@ router.get("/play", function (req, res) {
 });
 
 /* Pressing the 'PLAY' button, returns this page */
-router.get("/auth/admin_greeting", function (req, res) {
-  res.send("This data is only reached by authenticated users");
+router.get("/auth/broadcast", function (req, res) {
+  res.send("<script src='/auth/hello.js'></script>");
 });
 
 module.exports = router;
