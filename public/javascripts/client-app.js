@@ -5,7 +5,7 @@ printMessage(0); //waiting for player message
 var localGame = new LocalGame(); //initalises game locally
 
 /******************************SOCKET COMMUNICATION ******************************/
-const socket = new WebSocket("ws://localhost:3000"); //"wss://parchispara2.herokuapp.com/"
+const socket = new WebSocket("ws://localhost:3000" || "wss://parchispara2.herokuapp.com/");
 
 //New player joins a game notification
 socket.onopen = function () {
