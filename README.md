@@ -1,7 +1,7 @@
 # Websocket app: Ludo for 2 (lu2)
 To do: Add blocks, button to toggle the chat display (automatically off), make whole board to fit the page (so it looks good on mobile too), make rules also a button to display and hide
 <ul>
-<li>2 player online game assignment with express and node for TU Delft course CSE1500 <a href="https://chauff.github.io/Web-Teaching/">Web Technology part</a></li>
+<li>2 player online game assignment with express and node for TU Delft course CSE1500 <a href="https://chauff.github.io/Web-Teaching/">Web Technology</a></li>
 <li>The websocket package is "ws"</li>
 <li>The home page stats are not stored in a database but in the temporary memory of the server.</li>
 <li>Stats are refreshed with ejs templates.</li>
