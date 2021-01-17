@@ -1,5 +1,5 @@
 # Ludo for 2 (lu2)
-To do: Add blocks
+To do: Add blocks, button to toggle the chat display (automatically off), make whole board to fit the page (so it looks good on mobile too), make rules also a button to display and hide
 <ul>
 <li>2 player online game assignment for TU Delft course CSE1500 <a href="https://chauff.github.io/Web-Teaching/">Web Technology part</a> taught by <a href="https://github.com/chauff">Claudia Hauff</a></li>
 <li>The tech stack comprises plain Javascript on the client side and Node.js on the server side (and html+css).</li>
