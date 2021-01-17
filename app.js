@@ -7,7 +7,7 @@ var websocket = require("ws");
 var indexRouter = require("./routes/index.js"); //middleware
 var loginRouter = require("./routes/login.js"); //middleware
 var gameStatus = require("./statTracker");
-var Game = require("./game");
+var Game = require("./game"); //import the game
 
 //Port config, create Express application an create server
 var port = process.argv[2];
