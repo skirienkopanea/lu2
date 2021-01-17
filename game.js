@@ -27,6 +27,6 @@ function game(id) {
     };
 };
 
-module.exports = game;
+module.exports = game; //export the game
 //could have also just used module.exports.thing(1/2/3/...) = game... if we wanted to export more things.
 //the name of the object does not need to match with the name of the file

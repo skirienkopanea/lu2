@@ -1,13 +1,13 @@
 /******************************SET UP THE SERVER******************************/
 
-//Import modules
+//Import all modules
 var express = require("express");
 var http = require("http");
 var websocket = require("ws");
 var indexRouter = require("./routes/index.js"); //middleware
 var loginRouter = require("./routes/login.js"); //middleware
 var gameStatus = require("./statTracker");
-var Game = require("./game");
+var Game = require("./game"); //import the game
 
 //Port config, create Express application an create server
 var port = process.argv[2];
