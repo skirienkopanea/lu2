@@ -1,6 +1,6 @@
 /******************************SET UP THE SERVER******************************/
 
-//Import modules
+//Import all modules
 var express = require("express");
 var http = require("http");
 var websocket = require("ws");
