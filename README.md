@@ -22,7 +22,7 @@ cd lu2
 npm start
 ```
 
-You can now access the game at http://localhost:3000/ in the browser. Open another browser window on your local machine to access the game as another player. From another machine in your network the game should be accessible by using the host local ip address.
+You can now access the game at http://localhost:3000/ in the browser. Open another browser window on your local machine to access the game as another player. Other machines in your network may acces by using the host local ip address.
 
 Game screenshot:
 ![Board game screenshot](screenshot.png)
