@@ -5,11 +5,7 @@ printMessage(0); //waiting for player message
 var localGame = new LocalGame(); //initalises game locally
 
 /******************************SOCKET COMMUNICATION ******************************/
-let char = document.URL.indexOf('https:') == -1 ? '' : 's';
-let url = document.URL.substr(document.URL.indexOf(':'));
-let cleanurl = url.substring(3)
-let finalurl = "ws" + char + "://" + cleanurl.substr(0,cleanurl.indexOf('/'));
-const socket = new WebSocket(finalurl);
+const socket = new WebSocket(document.URL.replace('http','ws'));
 
 //New player joins a game notification
 socket.onopen = function () {
