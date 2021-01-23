@@ -1,5 +1,5 @@
 # Web-socket app: Ludo for 2 (lu2)
-To do: Rename websockets for games, Add blocks, button to toggle the chat display (automatically off), make whole board to fit the page (so it looks good on mobile too), make rules also a button to display and hide
+To do: Rename websockets for games, Add blocks, button to toggle the chat display (automatically off), make whole board to fit the page (so it looks good on mobile too), make rules also a button to display and hide. Try to deploy to heroku without the nodue modules locally.
 <ul>
 <li>2 player online game assignment for my CS bachelor with express and node</li>
 <li>You can check a live implementation at https://parchispara2.herokuapp.com/</li>
