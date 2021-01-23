@@ -1,12 +1,7 @@
 # Web-socket app: Ludo for 2 (lu2)
 To do: Rename websockets for games, Add blocks, button to toggle the chat display (automatically off), make whole board to fit the page (so it looks good on mobile too), make rules also a button to display and hide
 <ul>
-<li>2 player online game assignment with express and node for TU Delft course CSE1500 <a href="https://chauff.github.io/Web-Teaching/">Web Technology</a></li>
-<li>The websocket package is "ws"</li>
-<li>The home page stats are not stored in a database but in the temporary memory of the server.</li>
-<li>Stats are refreshed with ejs templates.</li>
-<li>In terms of users joining games, the server assigns odd players to a new game, as player 1.</li>
-<li>Even players are assigned to the existing game without a 2nd player, as player 2.</li>
+<li>2 player online game assignment for my CS bachelor with express and node</li>
 <li>You can check a live implementation at https://parchispara2.herokuapp.com/</li>
 <li>If the player doesn't take any action the herokuapp environment will disconnect the player from the server after roughly 1 minute of inactivity.
 That is a feature managed by herokuapp themselves. (A workaround could be to automatize an empty message from the client to the server every 30 seconds)</li>
