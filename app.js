@@ -55,7 +55,7 @@ app.use(function (err, req, res, next) {
 /******************************SOCKET COMMUNICATION ******************************/
 
 //INITIALISE GAMES
-var websockets = {}; //property: websocket, value: game
+var gamerooms = {}; //property: websocket, value: game
 var connectionID = 0; //each websocket receives a unique ID
 const wss = new websocket.Server({ server }); //initialise socket object
 module.exports = wss;
@@ -129,10 +129,10 @@ wss.on("connection", function connection(socket, req) {
         }
         let playerType = currentGame.addPlayer(socket); //adds player to a non-finished game with a player slot available
 
-        //array of games, the indexes are the player's ids (i.e. websockets[0] = websockets[1] = game 0)
+        //array of games, the indexes are the player's ids (i.e. gamerooms[0] = gamerooms[1] = game 0)
         //This will support multiple live games as we can now link a received socket message
         //to their respective game, and broadcast responses to that specific game only
-        websockets[socket.id] = currentGame; //beware immeadeately after p2 joins this reference is overwritten by a new game object so after that point it no longer presents the "current" game, use the websockets array which contain the actual games per socket
+        gamerooms[socket.id] = currentGame; //beware immeadeately after p2 joins this reference is overwritten by a new game object so after that point it no longer presents the "current" game, use the gamerooms array which contain the actual games per socket
 
         console.log("%s\t%s\t%s\t%s\t", new Date(), "gameroom " + currentGame.id, "PLY" + playerType, "socket", socket.id, user); //for server debugging
 
@@ -146,11 +146,11 @@ wss.on("connection", function connection(socket, req) {
                     type: "P1 IS READY"
                 }
                 //since currentGame has been replaced there are only empty players in that reference
-                //only way to fetch the socket of player 1 is to check the websockets array
+                //only way to fetch the socket of player 1 is to check the gamerooms array
                 //which contains the game objects, and get player1 socket from there
-                websockets[socket.id].player1.send(JSON.stringify(messageToP1));
-                websockets[socket.id].player2.send(JSON.stringify(messageToP2));
-                console.log("%s\t%s\t%s\t", new Date(), "gameroom " + websockets[socket.id].id, "START"); //for server debugging
+                gamerooms[socket.id].player1.send(JSON.stringify(messageToP1));
+                gamerooms[socket.id].player2.send(JSON.stringify(messageToP2));
+                console.log("%s\t%s\t%s\t", new Date(), "gameroom " + gamerooms[socket.id].id, "START"); //for server debugging
             }
         }
 
@@ -161,7 +161,7 @@ wss.on("connection", function connection(socket, req) {
             let messageObject = JSON.parse(message);
 
             //Reference to the server game object played by this client
-            let gameObject = websockets[socket.id];
+            let gameObject = gamerooms[socket.id];
 
             //Checks the player role of the socket
             let isPlayer1 = gameObject.player1 == socket ? true : false;
@@ -230,7 +230,7 @@ wss.on("connection", function connection(socket, req) {
 
         //BEHAVIOUR AT CONNECTION CLOSURE
         socket.on("close", function (code) {
-            let gameObject = websockets[socket.id];
+            let gameObject = gamerooms[socket.id];
             gameStatus.onlinePlayersCount--;
 
             // code 1001 means closing initiated by the client;
@@ -273,11 +273,11 @@ wss.on("connection", function connection(socket, req) {
 
 //MANTAINANCE: regularly clean up from memory the ended games (Hoisting will execute the web sockets before this function)
 setInterval(function () {
-    for (let i in websockets) {
-        if (Object.prototype.hasOwnProperty.call(websockets, i)) {
-            let gameObject = websockets[i];
+    for (let i in gamerooms) {
+        if (Object.prototype.hasOwnProperty.call(gamerooms, i)) {
+            let gameObject = gamerooms[i];
             if (gameObject.gameOver && gameObject.player1 == null && gameObject.player2 == null) {
-                delete websockets[i];
+                delete gamerooms[i];
             }
         }
     }
