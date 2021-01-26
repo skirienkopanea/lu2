@@ -1,6 +1,6 @@
 /******************************SET UP THE SERVER******************************/
 
-//Import all modules
+//Import all packages (public) and modules (local)
 var express = require("express");
 var http = require("http");
 var websocket = require("ws");
@@ -55,7 +55,7 @@ app.use(function (err, req, res, next) {
 /******************************SOCKET COMMUNICATION ******************************/
 
 //INITIALISE GAMES
-var gamerooms = {}; //property: websocket, value: game
+var gamerooms = {}; //property (index): websocket id; value: game
 var connectionID = 0; //each websocket receives a unique ID
 const wss = new websocket.Server({ server }); //initialise socket object
 module.exports = wss;

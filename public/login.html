@@ -20,6 +20,8 @@
 
   <script>
 
+//TODO: refractor this to a specific javascript file and use axios library to simplify the request/response behaviour
+//TODO: instead of redirecting with a message parsed from the url params, better to just append a warning message in the dom
     var url = new URL(document.URL);
     var message = url.searchParams.get("message");
 
