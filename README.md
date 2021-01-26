@@ -1,5 +1,4 @@
 # Web-socket app: Ludo for 2 (lu2)
-To do: Change 'var' for let/const/'' respectively. Add blocks, button to toggle the chat display (automatically off), make whole board to fit the page (so it looks good on mobile too), make rules also a button to display and hide. Try to deploy to heroku without the nodue modules locally. (so add the npm install part to the description and add .gitignore for the nodules folder)
 <ul>
 <li>2 player online game assignment during my CS bachelor with express and node</li>
 <li>You can check a live implementation at https://parchispara2.herokuapp.com/</li>
@@ -20,3 +19,12 @@ npm start
 You can now access the game at http://localhost:3000/ in the browser. Open another browser window on your local machine to access the game as another player. Other machines in your network may join by using the host local ip address.
 
 ![Board game screenshot](screenshot.png)
+
+Possible points of improvement:
+<ul>
+  <li>Change 'var' for let/const/''</li>
+  <li>Add pairs of tokens of the same team blocking a cell feature</li>
+  <li>buttons to toggle the chat, rules display. Improved it's aesthetics (place them on the sides of the window, i.e. chat in the right, rules in the left)</li>
+  <li>Make game mobile friendly by fitting the whole board to the entire page</li>
+ <ul>
+Try to deploy to heroku without the nodue modules locally. (so add the npm install part to the description and add .gitignore for the nodules folder)
