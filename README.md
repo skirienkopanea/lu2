@@ -13,6 +13,7 @@ You can implement this game on your local machine. Install Node.js https://nodej
 ```console
 git clone https://github.com/skirienkopanea/lu2
 cd lu2
+npm install
 npm start
 ```
 
@@ -26,5 +27,4 @@ Possible points of improvement:
   <li>Add pairs of tokens of the same team blocking a cell feature</li>
   <li>buttons to toggle the chat, rules display. Improved it's aesthetics (place them on the sides of the window, i.e. chat in the right, rules in the left)</li>
   <li>Make game mobile friendly by fitting the whole board to the entire page</li>
- <ul>
-Try to deploy to heroku without the nodue modules locally. (so add the npm install part to the description and add .gitignore for the nodules folder)
+ </ul>
