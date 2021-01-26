@@ -17,7 +17,5 @@
     "sqlstring": "^2.3.2",
     "validator": "^13.5.2",
     "ws": "^7.4.1"
-  },
-  "author": "Sergio and Bram",
-  "license": "MIT"
+  }
 }
