@@ -74,17 +74,21 @@ socket.onmessage = function (message) {
   
 }
 //CHAT INPUT FORM
-function chatSeverConsole(form) {
-   if (event.key === 'Enter') {
+const textarea = document.getElementById("textarea");
+textarea.addEventListener('keypress',chatSeverConsole);
+
+//eventito refers to the event (we need it to extract the char typed)
+function chatSeverConsole(eventito) {
+   if (eventito.key == 'Enter') {
       let message =
       {
          type: "CHAT",
-         data: form.value
+         data: textarea.value
       };
       socket.send(JSON.stringify(message));
       setTimeout(function () {
-         form.value = "";
-         form.placeholder = "";
+         textarea.value = "";
+         textarea.placeholder = "";
       }, 10);
    }
 }
