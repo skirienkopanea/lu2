@@ -97,7 +97,7 @@ router.post('/login', function (req, res, next) {
         req.session.user_auth = auth; //update session cokie with basic auth headers
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "LOGIN", user, req.session.attempts);
         req.session.attempts = 0; //reset attempt counter
-        res.cookie("user_nickname", user, { signed: true,  secure: true}); //trivial cookie... signed to check origniality, secure for encryption, new Date to ensure that different (yet easy to predict) session ids are sent per login (to do, validate session id on a database and use a harder encryption logarithm). This cookie just says hi, even if you are logged out after the session was expired. It's an example of a cookie that could be use as "user preferences" like for instance toggling dark mode
+        res.cookie("user_nickname", user, { signed: true,  secure: false}); //trivial cookie... signed to check origniality, if secure is true then it will only be sent via https
         next();
     } else {
         console.log("%s\t%s\t%s\t%s\t", new Date(), req.ip.substr(7), "WRNGPW", auth, req.session.attempts);
