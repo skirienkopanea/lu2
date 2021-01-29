@@ -25,6 +25,6 @@ Possible points of improvement:
 <ul>
   <li>Change 'var' for let/const/''</li>
   <li>Add pairs of tokens of the same team blocking a cell feature</li>
-  <li>buttons to toggle the chat, rules display. Improved it's aesthetics (place them on the sides of the window, i.e. chat in the right, rules in the left)</li>
-  <li>Make game mobile friendly by fitting the whole board to the entire page</li>
+  <li>Add buttons to toggle the chat/rules on/off.</li>
+  <li>Improve the aesthetics of the game (place chat/rules on the sides, add a darkmode, make game mobile friendly by fitting the whole board to the entire page, etc.)</li>
  </ul>
