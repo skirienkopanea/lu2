@@ -1,4 +1,4 @@
-# Web-socket app: Ludo for 2 (lu2)
+# WebSocket app: Ludo for 2 (lu2)
 <ul>
 <li>2 player online game assignment during my CS bachelor with express and node</li>
 <li>You can check a live implementation at https://parchispara2.herokuapp.com/</li>
