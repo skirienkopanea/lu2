@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node app 3000"
+    "start": "node app 3001"
   },
   "dependencies": {
     "audit": "0.0.6",
