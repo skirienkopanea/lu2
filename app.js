@@ -2,7 +2,8 @@
 
 //Import all packages (public) and modules (local)
 var express = require("express");
-var http = require("http");
+var https = require("https")
+var fs = require("fs");
 var websocket = require("ws");
 var indexRouter = require("./routes/index.js"); //middleware
 var loginRouter = require("./routes/login.js"); //middleware
@@ -12,7 +13,13 @@ var Game = require("./game"); //import the game
 //Port config, create Express application an create server
 var port = process.argv[2];
 var app = express();
-var server = http.createServer(app);
+var server = https.createServer({
+  key: fs.readFileSync("../../sergio/router/privkey.pem"),
+  cert: fs.readFileSync("../../sergio/router/fullchain.pem")
+},app);
+server.listen(port);
+
+/****************************************************************************/
 
 //add middleware components
 //url logger
@@ -282,7 +289,3 @@ setInterval(function () {
         }
     }
 }, 60000); //every minute the server will delete game objects that are finished and witout players in it (they can be chatting man!)
-
-
-//Finally, after everything is set up, listen on port
-server.listen(process.env.PORT || port);
