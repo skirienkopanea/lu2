@@ -1,7 +1,7 @@
 # WebSocket app: Ludo for 2 (lu2)
 <ul>
 <li>2 player online game assignment during my CS bachelor with express and node</li>
-<li>You can check a live implementation at https://parchispara2.herokuapp.com/</li>
+<li>You can check a live implementation at https://sergio.kpan.nl:4002/</li>
 <li>If the player doesn't take any action the herokuapp environment will disconnect the player from the server after roughly 1 minute of inactivity.
 That is a feature managed by herokuapp themselves. (A workaround could be to automatize an empty message from the client to the server every 30 seconds)</li>
 <li>Local implementations do not have that feature.</li>
